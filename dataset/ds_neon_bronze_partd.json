@@ -1,0 +1,16 @@
+{
+	"name": "ds_neon_bronze_partd",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_neon_postgres",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzurePostgreSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "bronze",
+			"table": "cms_partd_raw"
+		}
+	}
+}
