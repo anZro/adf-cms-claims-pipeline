@@ -1,0 +1,80 @@
+{
+	"name": "df_partd_validation",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_partd_csv",
+						"type": "DatasetReference"
+					},
+					"name": "BronzeSource"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "ValidateSchema"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Brnd_Name as string,",
+				"          Gnrc_Name as string,",
+				"          Tot_Mftr as short,",
+				"          Mftr_Name as string,",
+				"          Tot_Spndng_2019 as double,",
+				"          Tot_Dsg_Unts_2019 as double,",
+				"          Tot_Clms_2019 as integer,",
+				"          Tot_Benes_2019 as integer,",
+				"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2019 as double,",
+				"          Avg_Spnd_Per_Clm_2019 as double,",
+				"          Avg_Spnd_Per_Bene_2019 as double,",
+				"          Outlier_Flag_2019 as boolean,",
+				"          Tot_Spndng_2020 as double,",
+				"          Tot_Dsg_Unts_2020 as double,",
+				"          Tot_Clms_2020 as integer,",
+				"          Tot_Benes_2020 as integer,",
+				"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2020 as double,",
+				"          Avg_Spnd_Per_Clm_2020 as double,",
+				"          Avg_Spnd_Per_Bene_2020 as double,",
+				"          Outlier_Flag_2020 as boolean,",
+				"          Tot_Spndng_2021 as double,",
+				"          Tot_Dsg_Unts_2021 as double,",
+				"          Tot_Clms_2021 as integer,",
+				"          Tot_Benes_2021 as integer,",
+				"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2021 as double,",
+				"          Avg_Spnd_Per_Clm_2021 as double,",
+				"          Avg_Spnd_Per_Bene_2021 as double,",
+				"          Outlier_Flag_2021 as boolean,",
+				"          Tot_Spndng_2022 as double,",
+				"          Tot_Dsg_Unts_2022 as double,",
+				"          Tot_Clms_2022 as integer,",
+				"          Tot_Benes_2022 as integer,",
+				"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2022 as double,",
+				"          Avg_Spnd_Per_Clm_2022 as double,",
+				"          Avg_Spnd_Per_Bene_2022 as double,",
+				"          Outlier_Flag_2022 as boolean,",
+				"          Tot_Spndng_2023 as double,",
+				"          Tot_Dsg_Unts_2023 as double,",
+				"          Tot_Clms_2023 as integer,",
+				"          Tot_Benes_2023 as integer,",
+				"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2023 as double,",
+				"          Avg_Spnd_Per_Clm_2023 as double,",
+				"          Avg_Spnd_Per_Bene_2023 as double,",
+				"          Outlier_Flag_2023 as boolean,",
+				"          Chg_Avg_Spnd_Per_Dsg_Unt_22_23 as double,",
+				"          CAGR_Avg_Spnd_Per_Dsg_Unt_19_23 as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> BronzeSource",
+				"BronzeSource assert(expectTrue(!isNull(Brnd_Name), false, 'brand_name_not_null'),",
+				"     expectTrue(!isNull(Gnrc_Name), false, 'generic_name_not_null'),",
+				"     expectTrue(isNull(Tot_Spndng_2023) || toDecimal(Tot_Spndng_2023) >= 0, false, 'spending_non_negative'),",
+				"     abort: true) ~> ValidateSchema"
+			]
+		}
+	}
+}
