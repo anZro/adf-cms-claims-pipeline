@@ -1,0 +1,33 @@
+name: Validate ADF Pipeline JSON
+
+on:
+  pull_request:
+    paths:
+      - 'pipeline/**'
+      - 'dataset/**'
+      - 'linkedService/**'
+      - 'dataflow/**'
+
+jobs:
+  validate-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Validate all JSON files are well-formed
+        run: |
+          find . -name "*.json" -not -path "./.git/*" | while read f; do
+            python3 -c "import json; json.load(open('$f'))" \
+              && echo "✓ $f" || exit 1
+          done
+
+      - name: Check required pipeline properties
+        run: |
+          python3 - <<'EOF'
+          import json, glob
+          for f in glob.glob('pipeline/*.json'):
+              data = json.load(open(f))
+              assert 'properties' in data, f"{f}: missing 'properties'"
+              assert 'activities' in data['properties'], f"{f}: missing 'activities'"
+              print(f"✓ {f}")
+          EOF

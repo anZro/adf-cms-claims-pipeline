@@ -1,0 +1,50 @@
+name: dbt CI
+
+on:
+  pull_request:
+    paths:
+      - 'dbt/**'
+
+jobs:
+  dbt-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: pip install dbt-duckdb
+
+      - name: Create DuckDB profile for CI
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'PROFILE'
+          cms_partd_dbt:
+            target: ci
+            outputs:
+              ci:
+                type: duckdb
+                path: /tmp/ci_warehouse.duckdb
+                schema: main
+          PROFILE
+
+      - name: dbt deps
+        working-directory: dbt/cms_partd_dbt
+        run: dbt deps
+
+      - name: dbt compile
+        working-directory: dbt/cms_partd_dbt
+        run: dbt compile --profiles-dir ~/.dbt
+
+      - name: dbt run
+        working-directory: dbt/cms_partd_dbt
+        run: dbt run --profiles-dir ~/.dbt
+
+      - name: dbt test
+        working-directory: dbt/cms_partd_dbt
+        run: dbt test --profiles-dir ~/.dbt

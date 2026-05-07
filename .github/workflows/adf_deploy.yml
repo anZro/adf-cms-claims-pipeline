@@ -1,0 +1,31 @@
+name: Deploy ADF Pipelines
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pipeline/**'
+      - 'dataset/**'
+      - 'linkedService/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy ADF Pipeline
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            az datafactory pipeline create \
+              --resource-group rg-cms-partd-pipeline \
+              --factory-name adf-cms-partd-hemen \
+              --name pl_cms_partd_ingestion \
+              --pipeline @pipeline/pl_cms_partd_ingestion.json
