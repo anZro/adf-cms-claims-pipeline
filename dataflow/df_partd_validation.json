@@ -12,7 +12,15 @@
 					"name": "BronzeSource"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_neon_bronze_partd",
+						"type": "DatasetReference"
+					},
+					"name": "ValidationSink"
+				}
+			],
 			"transformations": [
 				{
 					"name": "ValidateSchema"
@@ -73,7 +81,16 @@
 				"BronzeSource assert(expectTrue(!isNull(Brnd_Name), false, 'brand_name_not_null'),",
 				"     expectTrue(!isNull(Gnrc_Name), false, 'generic_name_not_null'),",
 				"     expectTrue(isNull(Tot_Spndng_2023) || toDecimal(Tot_Spndng_2023) >= 0, false, 'spending_non_negative'),",
-				"     abort: true) ~> ValidateSchema"
+				"     abort: true) ~> ValidateSchema",
+				"ValidateSchema sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ValidationSink"
 			]
 		}
 	}
