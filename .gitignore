@@ -1,0 +1,9 @@
+# dbt
+dbt/target/
+dbt/logs/
+dbt/*.duckdb
+dbt/dbt_packages/
+
+# credentials
+.env
+profiles.yml

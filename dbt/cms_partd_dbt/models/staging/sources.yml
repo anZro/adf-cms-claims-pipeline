@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: cms_partd_raw
+        columns:
+          - name: brnd_name
+            tests:
+              - not_null
+          - name: gnrc_name
+            tests:
+              - not_null
+          - name: tot_spndng_2023
+            tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: 0
+          - name: cagr_avg_spnd_per_dsg_unt_19_23
+            tests:
+              - dbt_expectations.expect_column_values_to_be_between:
+                  min_value: -1
+                  max_value: 100
+          - name: outlier_flag_2023
+            tests:
+              - accepted_values:
+                  values: [0, 1]

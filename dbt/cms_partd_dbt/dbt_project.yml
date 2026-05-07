@@ -1,0 +1,19 @@
+name: cms_partd_dbt
+version: '1.0.0'
+profile: cms_partd_dbt
+
+model-paths: ["models"]
+snapshot-paths: ["snapshots"]
+macro-paths: ["macros"]
+
+models:
+  cms_partd_dbt:
+    staging:
+      +schema: silver
+      +materialized: view
+    intermediate:
+      +schema: silver
+      +materialized: view
+    marts:
+      +schema: gold
+      +materialized: table

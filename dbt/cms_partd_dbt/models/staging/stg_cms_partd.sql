@@ -1,0 +1,58 @@
+WITH source AS (
+    SELECT * FROM {{ source('bronze', 'cms_partd_raw') }}
+),
+conformed AS (
+    SELECT
+        TRIM(brnd_name)                         AS brand_name,
+        TRIM(gnrc_name)                         AS generic_name,
+        TRIM(mftr_name)                         AS manufacturer_name,
+        tot_mftr                                AS total_manufacturers,
+        COALESCE(tot_spndng_2019, 0)            AS total_spending_2019,
+        COALESCE(tot_dsg_unts_2019, 0)          AS total_dosage_units_2019,
+        COALESCE(tot_clms_2019, 0)              AS total_claims_2019,
+        COALESCE(tot_benes_2019, 0)             AS total_beneficiaries_2019,
+        avg_spnd_per_dsg_unt_wghtd_2019         AS avg_spend_per_unit_2019,
+        avg_spnd_per_clm_2019                   AS avg_spend_per_claim_2019,
+        avg_spnd_per_bene_2019                  AS avg_spend_per_bene_2019,
+        COALESCE(outlier_flag_2019, 0)          AS outlier_flag_2019,
+        COALESCE(tot_spndng_2020, 0)            AS total_spending_2020,
+        COALESCE(tot_dsg_unts_2020, 0)          AS total_dosage_units_2020,
+        COALESCE(tot_clms_2020, 0)              AS total_claims_2020,
+        COALESCE(tot_benes_2020, 0)             AS total_beneficiaries_2020,
+        avg_spnd_per_dsg_unt_wghtd_2020         AS avg_spend_per_unit_2020,
+        avg_spnd_per_clm_2020                   AS avg_spend_per_claim_2020,
+        avg_spnd_per_bene_2020                  AS avg_spend_per_bene_2020,
+        COALESCE(outlier_flag_2020, 0)          AS outlier_flag_2020,
+        COALESCE(tot_spndng_2021, 0)            AS total_spending_2021,
+        COALESCE(tot_dsg_unts_2021, 0)          AS total_dosage_units_2021,
+        COALESCE(tot_clms_2021, 0)              AS total_claims_2021,
+        COALESCE(tot_benes_2021, 0)             AS total_beneficiaries_2021,
+        avg_spnd_per_dsg_unt_wghtd_2021         AS avg_spend_per_unit_2021,
+        avg_spnd_per_clm_2021                   AS avg_spend_per_claim_2021,
+        avg_spnd_per_bene_2021                  AS avg_spend_per_bene_2021,
+        COALESCE(outlier_flag_2021, 0)          AS outlier_flag_2021,
+        COALESCE(tot_spndng_2022, 0)            AS total_spending_2022,
+        COALESCE(tot_dsg_unts_2022, 0)          AS total_dosage_units_2022,
+        COALESCE(tot_clms_2022, 0)              AS total_claims_2022,
+        COALESCE(tot_benes_2022, 0)             AS total_beneficiaries_2022,
+        avg_spnd_per_dsg_unt_wghtd_2022         AS avg_spend_per_unit_2022,
+        avg_spnd_per_clm_2022                   AS avg_spend_per_claim_2022,
+        avg_spnd_per_bene_2022                  AS avg_spend_per_bene_2022,
+        COALESCE(outlier_flag_2022, 0)          AS outlier_flag_2022,
+        COALESCE(tot_spndng_2023, 0)            AS total_spending_2023,
+        COALESCE(tot_dsg_unts_2023, 0)          AS total_dosage_units_2023,
+        COALESCE(tot_clms_2023, 0)              AS total_claims_2023,
+        COALESCE(tot_benes_2023, 0)             AS total_beneficiaries_2023,
+        avg_spnd_per_dsg_unt_wghtd_2023         AS avg_spend_per_unit_2023,
+        avg_spnd_per_clm_2023                   AS avg_spend_per_claim_2023,
+        avg_spnd_per_bene_2023                  AS avg_spend_per_bene_2023,
+        COALESCE(outlier_flag_2023, 0)          AS outlier_flag_2023,
+        chg_avg_spnd_per_dsg_unt_22_23          AS yoy_unit_cost_change_22_23,
+        cagr_avg_spnd_per_dsg_unt_19_23         AS cagr_unit_cost_19_23,
+        _source_file,
+        _loaded_at
+    FROM source
+    WHERE brnd_name IS NOT NULL
+      AND gnrc_name IS NOT NULL
+)
+SELECT * FROM conformed
