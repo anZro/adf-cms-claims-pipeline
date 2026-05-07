@@ -1,0 +1,15 @@
+{
+	"name": "adf-cms-partd-hemen",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "11f2e523-99c4-4073-936e-dec776476a63",
+		"tenantId": "22d7257a-7672-4e67-84d5-820c07a1a3e6"
+	}
+}
