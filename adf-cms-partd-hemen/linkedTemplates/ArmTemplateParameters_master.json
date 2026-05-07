@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-cms-partd-hemen"
+		},
+		"ls_blob_cms_connectionString": {
+			"value": ""
+		},
+		"ls_neon_postgres_password": {
+			"value": ""
+		},
+		"ls_neon_postgres_properties_typeProperties_server": {
+			"value": "ep-delicate-silence-aq24pnih.c-8.us-east-1.aws.neon.tech"
+		},
+		"ls_neon_postgres_properties_typeProperties_database": {
+			"value": "neondb"
+		},
+		"ls_neon_postgres_properties_typeProperties_username": {
+			"value": "neondb_owner"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}
