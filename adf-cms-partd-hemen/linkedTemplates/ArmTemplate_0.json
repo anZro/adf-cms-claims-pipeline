@@ -143,9 +143,9 @@
 					],
 					"sinks": [
 						{
-							"dataset": {
-								"referenceName": "ds_neon_bronze_partd",
-								"type": "DatasetReference"
+							"linkedService": {
+								"referenceName": "ls_blob_cms",
+								"type": "LinkedServiceReference"
 							},
 							"name": "ValidationSink"
 						}
@@ -213,11 +213,13 @@
 						"     abort: true) ~> ValidateSchema",
 						"ValidateSchema sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     deletable:false,",
-						"     insertable:true,",
-						"     updateable:false,",
-						"     upsertable:false,",
-						"     format: 'table',",
+						"     format: 'delimited',",
+						"     container: 'archive',",
+						"     folderPath: 'validation_passed',",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> ValidationSink"
 					]
@@ -225,7 +227,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_bronze_partd_csv')]",
-				"[concat(variables('factoryId'), '/datasets/ds_neon_bronze_partd')]"
+				"[concat(variables('factoryId'), '/linkedServices/ls_blob_cms')]"
 			]
 		},
 		{
