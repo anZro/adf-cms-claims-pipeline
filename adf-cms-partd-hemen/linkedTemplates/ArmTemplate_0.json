@@ -124,6 +124,914 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_neon_postgres')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_partd_validation')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_partd_csv",
+								"type": "DatasetReference"
+							},
+							"name": "BronzeSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_neon_bronze_partd",
+								"type": "DatasetReference"
+							},
+							"name": "ValidationSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "ValidateSchema"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Brnd_Name as string,",
+						"          Gnrc_Name as string,",
+						"          Tot_Mftr as short,",
+						"          Mftr_Name as string,",
+						"          Tot_Spndng_2019 as double,",
+						"          Tot_Dsg_Unts_2019 as double,",
+						"          Tot_Clms_2019 as integer,",
+						"          Tot_Benes_2019 as integer,",
+						"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2019 as double,",
+						"          Avg_Spnd_Per_Clm_2019 as double,",
+						"          Avg_Spnd_Per_Bene_2019 as double,",
+						"          Outlier_Flag_2019 as boolean,",
+						"          Tot_Spndng_2020 as double,",
+						"          Tot_Dsg_Unts_2020 as double,",
+						"          Tot_Clms_2020 as integer,",
+						"          Tot_Benes_2020 as integer,",
+						"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2020 as double,",
+						"          Avg_Spnd_Per_Clm_2020 as double,",
+						"          Avg_Spnd_Per_Bene_2020 as double,",
+						"          Outlier_Flag_2020 as boolean,",
+						"          Tot_Spndng_2021 as double,",
+						"          Tot_Dsg_Unts_2021 as double,",
+						"          Tot_Clms_2021 as integer,",
+						"          Tot_Benes_2021 as integer,",
+						"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2021 as double,",
+						"          Avg_Spnd_Per_Clm_2021 as double,",
+						"          Avg_Spnd_Per_Bene_2021 as double,",
+						"          Outlier_Flag_2021 as boolean,",
+						"          Tot_Spndng_2022 as double,",
+						"          Tot_Dsg_Unts_2022 as double,",
+						"          Tot_Clms_2022 as integer,",
+						"          Tot_Benes_2022 as integer,",
+						"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2022 as double,",
+						"          Avg_Spnd_Per_Clm_2022 as double,",
+						"          Avg_Spnd_Per_Bene_2022 as double,",
+						"          Outlier_Flag_2022 as boolean,",
+						"          Tot_Spndng_2023 as double,",
+						"          Tot_Dsg_Unts_2023 as double,",
+						"          Tot_Clms_2023 as integer,",
+						"          Tot_Benes_2023 as integer,",
+						"          Avg_Spnd_Per_Dsg_Unt_Wghtd_2023 as double,",
+						"          Avg_Spnd_Per_Clm_2023 as double,",
+						"          Avg_Spnd_Per_Bene_2023 as double,",
+						"          Outlier_Flag_2023 as boolean,",
+						"          Chg_Avg_Spnd_Per_Dsg_Unt_22_23 as double,",
+						"          CAGR_Avg_Spnd_Per_Dsg_Unt_19_23 as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> BronzeSource",
+						"BronzeSource assert(expectTrue(!isNull(Brnd_Name), false, 'brand_name_not_null'),",
+						"     expectTrue(!isNull(Gnrc_Name), false, 'generic_name_not_null'),",
+						"     expectTrue(isNull(Tot_Spndng_2023) || toDecimal(Tot_Spndng_2023) >= 0, false, 'spending_non_negative'),",
+						"     abort: true) ~> ValidateSchema",
+						"ValidateSchema sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> ValidationSink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_bronze_partd_csv')]",
+				"[concat(variables('factoryId'), '/datasets/ds_neon_bronze_partd')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_cms_partd_ingestion')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "copy_bronze_to_postgres",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzurePostgreSqlSink",
+								"writeBatchSize": 1000000,
+								"writeBatchTimeout": "00:30:00",
+								"preCopyScript": {
+									"value": "DELETE FROM bronze.cms_partd_raw WHERE _source_file = '@{pipeline().parameters.source_file_name}'",
+									"type": "Expression"
+								},
+								"writeMethod": "BulkInsert"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Brnd_Name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "brnd_name",
+											"type": "String",
+											"physicalType": "text"
+										}
+									},
+									{
+										"source": {
+											"name": "Gnrc_Name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "gnrc_name",
+											"type": "String",
+											"physicalType": "text"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Mftr",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_mftr",
+											"type": "Int32",
+											"physicalType": "integer"
+										}
+									},
+									{
+										"source": {
+											"name": "Mftr_Name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "mftr_name",
+											"type": "String",
+											"physicalType": "text"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Spndng_2019",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_spndng_2019",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Dsg_Unts_2019",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_dsg_unts_2019",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Clms_2019",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_clms_2019",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Benes_2019",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_benes_2019",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Dsg_Unt_Wghtd_2019",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_dsg_unt_wghtd_2019",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Clm_2019",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_clm_2019",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Bene_2019",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_bene_2019",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Outlier_Flag_2019",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "outlier_flag_2019",
+											"type": "Int32",
+											"physicalType": "integer"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Spndng_2020",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_spndng_2020",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Dsg_Unts_2020",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_dsg_unts_2020",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Clms_2020",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_clms_2020",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Benes_2020",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_benes_2020",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Dsg_Unt_Wghtd_2020",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_dsg_unt_wghtd_2020",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Clm_2020",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_clm_2020",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Bene_2020",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_bene_2020",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Outlier_Flag_2020",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "outlier_flag_2020",
+											"type": "Int32",
+											"physicalType": "integer"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Spndng_2021",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_spndng_2021",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Dsg_Unts_2021",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_dsg_unts_2021",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Clms_2021",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_clms_2021",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Benes_2021",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_benes_2021",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Dsg_Unt_Wghtd_2021",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_dsg_unt_wghtd_2021",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Clm_2021",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_clm_2021",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Bene_2021",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_bene_2021",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Outlier_Flag_2021",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "outlier_flag_2021",
+											"type": "Int32",
+											"physicalType": "integer"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Spndng_2022",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_spndng_2022",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Dsg_Unts_2022",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_dsg_unts_2022",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Clms_2022",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_clms_2022",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Benes_2022",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_benes_2022",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Dsg_Unt_Wghtd_2022",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_dsg_unt_wghtd_2022",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Clm_2022",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_clm_2022",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Bene_2022",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_bene_2022",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Outlier_Flag_2022",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "outlier_flag_2022",
+											"type": "Int32",
+											"physicalType": "integer"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Spndng_2023",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_spndng_2023",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Dsg_Unts_2023",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_dsg_unts_2023",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Clms_2023",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_clms_2023",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Tot_Benes_2023",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "tot_benes_2023",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Dsg_Unt_Wghtd_2023",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_dsg_unt_wghtd_2023",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Clm_2023",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_clm_2023",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Avg_Spnd_Per_Bene_2023",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "avg_spnd_per_bene_2023",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "Outlier_Flag_2023",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "outlier_flag_2023",
+											"type": "Int32",
+											"physicalType": "integer"
+										}
+									},
+									{
+										"source": {
+											"name": "Chg_Avg_Spnd_Per_Dsg_Unt_22_23",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "chg_avg_spnd_per_dsg_unt_22_23",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									},
+									{
+										"source": {
+											"name": "CAGR_Avg_Spnd_Per_Dsg_Unt_19_23",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "cagr_avg_spnd_per_dsg_unt_19_23",
+											"type": "Decimal",
+											"physicalType": "numeric"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_bronze_partd_csv",
+								"type": "DatasetReference",
+								"parameters": {
+									"file_name": {
+										"value": "@pipeline().parameters.source_file_name",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_neon_bronze_partd",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "df_validate_bronze",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "copy_bronze_to_postgres",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_partd_validation",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"BronzeSource": {
+										"file_name": "DSD_PTD_RY25_P04_V10_DY23_BGM.csv"
+									},
+									"ValidationSink": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "validate_gold_layer",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "df_validate_bronze",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzurePostgreSqlSource",
+								"query": "SELECT COUNT(*) AS row_count FROM gold.fct_drug_spending",
+								"partitionOption": "None",
+								"queryTimeout": "02:00:00"
+							},
+							"dataset": {
+								"referenceName": "ds_neon_bronze_partd",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "check_gold_populated",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "validate_gold_layer",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(activity('validate_gold_layer').output.firstRow.row_count, 0)",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "alert_gold_empty",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"method": "POST",
+										"headers": {},
+										"url": "https://httpbin.org/post",
+										"body": {
+											"pipeline": "pl_cms_partd_ingestion",
+											"status": "FAILED",
+											"reason": "Gold layer empty"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "alert_pipeline_failure",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "copy_bronze_to_postgres",
+								"dependencyConditions": [
+									"Failed"
+								]
+							},
+							{
+								"activity": "df_validate_bronze",
+								"dependencyConditions": [
+									"Failed"
+								]
+							},
+							{
+								"activity": "validate_gold_layer",
+								"dependencyConditions": [
+									"Failed"
+								]
+							},
+							{
+								"activity": "check_gold_populated",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": "https://httpbin.org/post",
+							"body": {
+								"pipeline": "pl_cms_partd_ingestion",
+								"status": "FAILED"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"source_file_name": {
+						"type": "string",
+						"defaultValue": "DSD_PTD_RY25_P04_V10_DY23_BGM.csv"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_bronze_partd_csv')]",
+				"[concat(variables('factoryId'), '/datasets/ds_neon_bronze_partd')]",
+				"[concat(variables('factoryId'), '/dataflows/df_partd_validation')]"
+			]
 		}
 	]
 }
