@@ -103,6 +103,27 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_blob_cms')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_neon_bronze_partd')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_neon_postgres",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "bronze",
+					"table": "cms_partd_raw"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_neon_postgres')]"
+			]
 		}
 	]
 }
