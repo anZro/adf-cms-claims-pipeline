@@ -25,6 +25,8 @@ gold.dim_drugs              (dbt dimension — 11,477 unique drugs)
 silver.snp_drug_spending    (dbt SCD Type 2 snapshot)
 → Evidence.dev Dashboard
 
+![Pipeline Overview](images/pipeline.png)
+
 ---
 
 ## Dataset
@@ -94,6 +96,8 @@ Running this pipeline against real CMS data surfaces several analytically intere
 - **Ozempic (Semaglutide)** shows a counterintuitive pattern — unit cost CAGR is negative (-4.2%) despite $9.2B total spend, driven by volume growth outpacing unit price declines
 - **Magnesium Chloride** has the highest CAGR at 488% — a generic IV electrolyte with minimal total spend, illustrating drug shortage-driven pricing spikes on low-volume drugs
 - **Lagevrio (Molnupiravir)** at 205% CAGR reflects rapid COVID antiviral adoption into Medicare Part D post-pandemic
+
+![Evidence Dashboard](images/evidence_dash.png)
 
 ---
 
